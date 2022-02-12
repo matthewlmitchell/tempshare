@@ -14,6 +14,8 @@ func (app *application) routes() http.Handler {
 
 	mux := chi.NewRouter()
 	mux.Get("/", app.home)
+	mux.Get("/create", app.createTempShareForm)
+	mux.Post("/create", app.createTempShare)
 
 
 	fileServer := httpfileserver.New("/static/", "./ui/static/")
