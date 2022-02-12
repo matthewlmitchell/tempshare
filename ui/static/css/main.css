@@ -197,6 +197,8 @@ textarea {
     padding: 18px;
     width: 100%;
     height: 266px;
+    background-color: var(--body-bg-color);
+    color: var(--primary-text-color);
 }
 
 button {
@@ -266,7 +268,7 @@ footer {
     text-align: center;
 }
 
-label {
+label.dark-mode-switch {
     display: inline-flex;
     width: 75px;
     height: 35px;
@@ -328,7 +330,7 @@ input:checked + label {
     background: var(--label-color);
 }
 
-input {
+input.dark-mode-switch {
     display: none;
 }
 
