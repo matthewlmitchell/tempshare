@@ -1,10 +1,43 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
+
+func (app *application) addDefaultData(tmplData *templateData, r *http.Request) *templateData {
+
+	if tmplData == nil {
+		tmplData = &templateData{}
+	}
+
+	// TODO: Add CSRF token, flash msg (after adding session handling)
+	tmplData.CurrentYear = time.Now().Year()
+
+	return tmplData
+}
+
+func (app *application) render(w http.ResponseWriter, r *http.Request, tmplName string, tmplData *templateData) {
+
+	templateParsed, ok := app.templateCache[tmplName]
+	if !ok {
+		app.serverError(w, fmt.Errorf("the template %s does not exist", tmplName))
+		return
+	}
+
+	templateBuffer := new(bytes.Buffer)
+
+	err := templateParsed.Execute(templateBuffer, app.addDefaultData(tmplData, r))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	templateBuffer.WriteTo(w)
+}
 
 // serverError() writes the stack trace and error message to app.errorLog
 // then forwards the client to a code 500 error page

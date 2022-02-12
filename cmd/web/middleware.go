@@ -5,12 +5,21 @@ import (
 	"net/http"
 )
 
+func secureHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		w.Header().Set("X-Frame-Options", "deny")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 // recoverPanic defines a deferred function that will run in the event of a panic 
 // on the application's main thread, which will attempt to automatically recover from the
 // panic, log the error to app.errorLog, and close the connection to the client as code 500
 func (app *application) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		
+
 		// This deferred function will run when a panic occurs
 		defer func() {
 			// If a panic is detected in our main thread: close the connection,
