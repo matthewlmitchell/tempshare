@@ -3,11 +3,14 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+
+	"github.com/matthewlmitchell/tempshare/pkg/forms"
 )
 
 type templateData struct {
 	CurrentYear int
 	Flash string
+	Form *forms.Form
 }
 
 func initTemplateCache(dir string) (map[string]*template.Template, error) {
