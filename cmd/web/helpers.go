@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/gorilla/csrf"
 )
 
 func (app *application) addDefaultData(tmplData *templateData, r *http.Request) *templateData {
@@ -15,7 +17,9 @@ func (app *application) addDefaultData(tmplData *templateData, r *http.Request) 
 	}
 
 	// TODO: Add CSRF token, flash msg (after adding session handling)
+	tmplData.CSRFToken = csrf.Token(r)
 	tmplData.CurrentYear = time.Now().Year()
+	tmplData.Flash = app.session.PopString(r, "flash")
 
 	return tmplData
 }

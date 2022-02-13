@@ -9,8 +9,9 @@ import (
 
 type templateData struct {
 	CurrentYear int
-	Flash string
-	Form *forms.Form
+	CSRFToken   string
+	Flash       string
+	Form        *forms.Form
 }
 
 func initTemplateCache(dir string) (map[string]*template.Template, error) {
