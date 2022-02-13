@@ -8,7 +8,7 @@ import (
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
-	app.render(w, r, "home.page.tmpl", nil) 
+	app.render(w, r, "home.page.tmpl", nil)
 }
 
 func (app *application) createTempShareForm(w http.ResponseWriter, r *http.Request) {
@@ -39,9 +39,11 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO: Generate a unique URL, insert the data into the database, and 
+	// TODO: Require captcha verification to submit
+
+	// TODO: Generate a unique URL, insert the data into the database, and
 	// return the URL to the user
-	
+
 	// tempShareURL := ""
 
 	// Add session handling
@@ -49,4 +51,9 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
+}
+
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+
+	app.render(w, r, "about.page.tmpl", nil)
 }

@@ -4,7 +4,12 @@ import (
 	"flag"
 	"html/template"
 	"log"
+	"net/http"
 	"os"
+	"time"
+
+	"github.com/golangcollege/sessions"
+	"github.com/gorilla/securecookie"
 )
 
 const version = "0.0.0001"
@@ -15,9 +20,10 @@ type config struct {
 }
 
 type application struct {
-	errorLog     *log.Logger
-	infoLog      *log.Logger
-	serverConfig config
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	session       *sessions.Session
+	serverConfig  config
 	templateCache map[string]*template.Template
 }
 
@@ -27,6 +33,7 @@ func main() {
 
 	flag.IntVar(&servConfig.port, "port", 4000, "HTTP network address")
 	flag.StringVar(&servConfig.env, "env", "development", "Environment (development|staging|production)")
+	secret := flag.String("secret", string(securecookie.GenerateRandomKey(32)), "Cookie store session secret")
 
 	// We must parse all command line arguments before they can be used
 	flag.Parse()
@@ -39,10 +46,16 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+	session.Secure = true
+	session.SameSite = http.SameSiteLaxMode
+
 	app := &application{
-		errorLog:     errorLog,
-		infoLog:      infoLog,
-		serverConfig: servConfig,
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		session:       session,
+		serverConfig:  servConfig,
 		templateCache: templateCache,
 	}
 
