@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/matthewlmitchell/tempshare/pkg/forms"
@@ -47,9 +48,9 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 	// tempShareURL := ""
 
 	// Add session handling
-	// app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", tempShareURL))
+	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder")))
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/create", http.StatusSeeOther)
 
 }
 
