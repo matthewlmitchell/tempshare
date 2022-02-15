@@ -2,6 +2,7 @@
     --bg-color: #F7F9FA;
     --body-bg-color: #F1F3F6;
     --primary-text-color: #34495E;
+    --box-text-color: #FFFFFF;
     --border-color: #E4E5E7;
     --label-color: #222;
 }
@@ -216,7 +217,7 @@ button:hover {
 }
 
 div.flash {
-    color: #FFFFFF;
+    color: var(--body-bg-color);
     font-weight: bold;
     background-color: var(--primary-text-color);
     padding: 18px;
@@ -338,6 +339,7 @@ input.dark-mode-switch {
     --bg-color: #172024;
     --body-bg-color: #1a1c1d;
     --primary-text-color: #a6bcce;
+    --box-text-color: #000000;
     --border-color: #373c3e;
     --label-color: #030303;
 }

@@ -40,16 +40,13 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO: Require captcha verification to submit
+	// TODO: Require captcha verification or account registration to submit
 
 	// TODO: Generate a unique URL, insert the data into the database, and
 	// return the URL to the user
-
-	// tempShareURL := ""
-
-	// Add session handling
 	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder")))
 
+	// Refresh the page so the message flash will become visible
 	http.Redirect(w, r, "/create", http.StatusSeeOther)
 
 }

@@ -29,9 +29,9 @@ func (app *application) initializeServer() error {
 	}
 
 	srv := &http.Server{
-		Addr:     fmt.Sprintf(":%d", app.serverConfig.port),
-		ErrorLog: app.errorLog,
-		Handler: app.routes(),
+		Addr:           fmt.Sprintf(":%d", app.serverConfig.port),
+		ErrorLog:       app.errorLog,
+		Handler:        app.routes(),
 		TLSConfig:      tlsConfig,
 		TLSNextProto:   make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 		IdleTimeout:    time.Minute,
@@ -57,11 +57,11 @@ func (app *application) initializeServer() error {
 		app.infoLog.Println("Shutting down server with signal", sig.String())
 
 		// This context will timeout after 20 seconds have passed
-		ctx, cancel := context.WithTimeout(context.Background(), 20 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 		defer cancel()
 
 		// Attempt to gracefully shutdown the server within the 20 second timeout context
-		// srv.Shutdown() will return any errors if necessary, which will be sent into our 
+		// srv.Shutdown() will return any errors if necessary, which will be sent into our
 		// shutdownError channel outside of the goroutine
 		shutdownError <- srv.Shutdown(ctx)
 
