@@ -49,7 +49,7 @@ func (app *application) initializeServer() error {
 		// a signal if it is sent before the channel has allocated space to receive it.
 		quit := make(chan os.Signal, 1)
 
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGKILL)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 		// Block on the channel until a signal is received, then store it in a variable
 		sig := <-quit
