@@ -30,10 +30,11 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 	}
 
 	form := forms.New(r.PostForm)
-	form.Required("text", "expires")
+	form.Required("text", "expires", "viewlimit")
 	form.MinLength("text", 2)
 	form.MaxLength("text", 1024)
-	form.PermittedValues("expires", "0", "1", "7")
+	form.PermittedValues("expires", "1", "3", "7")
+	form.PermittedValues("viewlimit", "1", "3", "100000")
 
 	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
@@ -41,10 +42,15 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// TODO: Require captcha verification or account registration to submit
+	tempShare, err := app.tempShare.New(form.Get("text"), form.Get("expires"), form.Get("viewlimit"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	// TODO: Generate a unique URL, insert the data into the database, and
 	// return the URL to the user
-	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder")))
+	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder.com/view?token=%s", tempShare.PlainText)))
 
 	// Refresh the page so the message flash will become visible
 	http.Redirect(w, r, "/create", http.StatusSeeOther)

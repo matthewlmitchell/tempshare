@@ -14,14 +14,24 @@
 			<textarea name="text">{{.Get "text"}}</textarea>
 		</div>
 		<div>
-			<label>Delete after:</label>
+			<label>Expire after:</label>
 			{{with .Errors.Get "expires"}}
 				<label class="error">{{.}}</label>
 			{{end}}
-			{{$exp := or (.Get "expires") "0"}}
-			<input type="radio" name="expires" value="0" {{if (eq $exp "0")}}checked{{end}}> One View
-			<input type="radio" name="expires" value="1" {{if (eq $exp "1")}}checked{{end}}> One Hour
-			<input type="radio" name="expires" value="7" {{if (eq $exp "7")}}checked{{end}}> One Day
+			{{$exp := or (.Get "expires") "1"}}
+			<input type="radio" name="expires" value="1" {{if (eq $exp "1")}}checked{{end}}> One Day
+			<input type="radio" name="expires" value="3" {{if (eq $exp "3")}}checked{{end}}> Three Days
+			<input type="radio" name="expires" value="7" {{if (eq $exp "7")}}checked{{end}}> One Week
+		</div>
+		<div>
+			<label>Delete after:</label>
+			{{with .Errors.Get "views"}}
+				<label class="error">{{.}}</label>
+			{{end}}
+			{{$view := or (.Get "viewlimit") "1"}}
+			<input type="radio" name="viewlimit" value="1" {{if (eq $view "1")}}checked{{end}}> One View
+			<input type="radio" name="viewlimit" value="3" {{if (eq $view "3")}}checked{{end}}> Three Views
+			<input type="radio" name="viewlimit" value="100000" {{if (eq $view "100000")}}checked{{end}}> Unlimited
 		</div>
 		<div>
 			<input type="submit" value="Generate link">
