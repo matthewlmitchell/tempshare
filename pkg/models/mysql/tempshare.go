@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
-	"log"
 	"strconv"
 	"time"
 
@@ -87,10 +86,18 @@ func (model *TempShareModel) Update(plaintextToken string) error {
 	urlTokenHash := sha256.Sum256([]byte(plaintextToken))
 	urlToken := urlTokenHash[:]
 
-	_, err := model.DB.ExecContext(ctx, sqlStatement, string(urlToken))
+	result, err := model.DB.ExecContext(ctx, sqlStatement, urlToken)
 	if err != nil {
-		log.Println(err)
 		return err
+	}
+
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if numRowsAffected == 0 {
+		return models.ErrNoRecord
 	}
 
 	return nil

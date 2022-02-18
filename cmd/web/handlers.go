@@ -92,14 +92,19 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 	if err == models.ErrNoRecord {
 		form.Errors.Add("generic", "Invalid token")
 		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
+		return
 	} else if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
 	// Increment the number of views in our SQL database
-	err = app.tempShare.Update(tempShareData.PlainText)
-	if err != nil {
+	err = app.tempShare.Update(token.PlainText)
+	if err == models.ErrNoRecord {
+		form.Errors.Add("generic", "Invalid token")
+		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
+		return
+	} else if err != nil {
 		app.serverError(w, err)
 		return
 	}
