@@ -6,6 +6,7 @@ import (
 
 	"github.com/matthewlmitchell/tempshare/pkg/forms"
 	"github.com/matthewlmitchell/tempshare/pkg/models"
+	"github.com/matthewlmitchell/tempshare/pkg/recaptcha"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -31,26 +32,34 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 	}
 
 	form := forms.New(r.PostForm)
-	form.Required("text", "expires", "viewlimit")
+	form.Required("text", "expires", "viewlimit", "g-recaptcha-response")
 	form.MinLength("text", 2)
 	form.MaxLength("text", 1024)
 	form.PermittedValues("expires", "1", "3", "7")
-	form.PermittedValues("viewlimit", "1", "3", "100000")
+	form.PermittedValues("viewlimit", "1", "3", "10")
 
 	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
 		return
 	}
 
-	// TODO: Require captcha verification or account registration to submit
+	success, err := recaptcha.VerifyRecaptcha(r, form.Get("g-recaptcha-response"))
+	if err != nil {
+		app.serverError(w, err)
+		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
+		return
+	}
+	if !success {
+		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
+		return
+	}
+
 	tempShare, err := app.tempShare.New(form.Get("text"), form.Get("expires"), form.Get("viewlimit"))
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// TODO: Generate a unique URL, insert the data into the database, and
-	// return the URL to the user
 	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder.com/view?token=%s", tempShare.PlainText)))
 
 	// Refresh the page so the message flash will become visible
@@ -74,12 +83,25 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := forms.New(r.PostForm)
-	form.Required("token")
+	form.Required("token", "g-recaptcha-response")
 	form.MaxLength("token", 52)
 	form.MinLength("token", 52)
 
 	if !form.Valid() {
 		form.Errors.Add("generic", "Invalid token")
+		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
+		return
+	}
+
+	// TODO: Verify reCAPTCHA completion
+	success, err := recaptcha.VerifyRecaptcha(r, form.Get("g-recaptcha-response"))
+	if err != nil {
+		app.serverError(w, err)
+		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
+		return
+	}
+	if !success {
+		app.session.Put(r, "flash", "An error occured.\nPlease complete the captcha again.")
 		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
 		return
 	}
@@ -98,16 +120,7 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Increment the number of views in our SQL database
-	err = app.tempShare.Update(token.PlainText)
-	if err == models.ErrNoRecord {
-		form.Errors.Add("generic", "Invalid token")
-		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
-		return
-	} else if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	// TODO: Delete tempShare from database when views >= viewlimit
 
 	app.session.Put(r, "flash", fmt.Sprintf("This link has %d uses remaining.", tempShareData.ViewLimit-tempShareData.Views-1))
 

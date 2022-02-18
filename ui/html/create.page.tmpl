@@ -3,7 +3,13 @@
 {{define "title"}}Create{{end}}
 
 {{define "body"}}
-<form action="/create" method="POST">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+	function enableSubmit() {
+		document.getElementById("submit").removeAttribute("disabled");
+	}
+</script>
+<form action="/create" method="POST" id="create-tempShare">
 	<input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
 	{{with .Form}}
 		<div>
@@ -31,11 +37,10 @@
 			{{$view := or (.Get "viewlimit") "1"}}
 			<input type="radio" name="viewlimit" value="1" {{if (eq $view "1")}}checked{{end}}> One View
 			<input type="radio" name="viewlimit" value="3" {{if (eq $view "3")}}checked{{end}}> Three Views
-			<input type="radio" name="viewlimit" value="100000" {{if (eq $view "100000")}}checked{{end}}> Unlimited
+			<input type="radio" name="viewlimit" value="10" {{if (eq $view "10")}}checked{{end}}> Ten Views
 		</div>
-		<div>
-			<input type="submit" value="Generate link">
-		</div>
+		<div class="g-recaptcha" data-sitekey="6Lf6y4keAAAAAAJ60lesX2__4gk3UoPVS8zbovpG" data-callback="enableSubmit"></div>
+		<input type="submit" id="submit" value="Generate link" disabled="disabled">
 	{{end}}
 </form>
 {{end}}

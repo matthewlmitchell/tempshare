@@ -2,17 +2,22 @@
 
 {{define "title"}}TempShare{{end}}
 {{define "body"}}
-    <form action="/view" method="POST" novalidate>
-        <input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
-        <input type="hidden" name="token" value='{{.Form.Values.Get "token"}}'>
-        {{with .Form}}
-            {{with .Errors.Get "generic"}}
-                <div class="error">{{.}}</div>
-            {{end}}
-
-            <div>
-                <input type="submit" value="Open">
-            </div>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+	function enableSubmit() {
+		document.getElementById("submit").removeAttribute("disabled");
+	}
+</script>
+<form action="/view" method="POST" novalidate>
+    <input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
+    <input type="hidden" name="token" value='{{.Form.Values.Get "token"}}'>
+    {{with .Form}}
+        {{with .Errors.Get "generic"}}
+            <div class="error">{{.}}</div>
         {{end}}
-    </form>
+
+        <div class="g-recaptcha" data-sitekey="6Lf6y4keAAAAAAJ60lesX2__4gk3UoPVS8zbovpG" data-callback="enableSubmit"></div>
+        <input type="submit" id="submit" value="Open" disabled="disabled">
+    {{end}}
+</form>
 {{end}}
