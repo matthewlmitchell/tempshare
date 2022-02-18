@@ -18,6 +18,9 @@ func (app *application) routes() http.Handler {
 	mux.Get("/create", dynamicMiddleware.ThenFunc(app.createTempShareForm).(http.HandlerFunc))
 	mux.Post("/create", dynamicMiddleware.ThenFunc(app.createTempShare).(http.HandlerFunc))
 
+	mux.Get("/view", dynamicMiddleware.ThenFunc(app.viewTempShareForm).(http.HandlerFunc))
+	mux.Post("/view", dynamicMiddleware.ThenFunc(app.viewTempShare).(http.HandlerFunc))
+
 	mux.Get("/about", dynamicMiddleware.ThenFunc(app.about).(http.HandlerFunc))
 
 	fileServer := httpfileserver.New("/static/", "./ui/static/")
