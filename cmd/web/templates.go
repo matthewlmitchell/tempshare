@@ -3,15 +3,30 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"github.com/matthewlmitchell/tempshare/pkg/forms"
+	"github.com/matthewlmitchell/tempshare/pkg/models"
 )
 
 type templateData struct {
 	CurrentYear int
 	CSRFToken   string
 	Flash       string
+	TempShare   *models.TempShare
 	Form        *forms.Form
+}
+
+func FormattedDate(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+
+	return t.UTC().Format("Jan 02 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"formattedDate": FormattedDate,
 }
 
 func initTemplateCache(dir string) (map[string]*template.Template, error) {
@@ -34,7 +49,7 @@ func initTemplateCache(dir string) (map[string]*template.Template, error) {
 		// functions is a template.FuncMap{}
 
 		// Create a new HTML template with the filename above
-		templateParsed, err := template.New(fileName).ParseFiles(page)
+		templateParsed, err := template.New(fileName).Funcs(functions).ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
