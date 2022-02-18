@@ -1,0 +1,18 @@
+{{template "base" .}}
+
+{{define "title"}}TempShare{{end}}
+{{define "body"}}
+    <form action="/view" method="POST" novalidate>
+        <input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
+        <input type="hidden" name="token" value='{{.Form.Values.Get "token"}}'>
+        {{with .Form}}
+            {{with .Errors.Get "generic"}}
+                <div class="error">{{.}}</div>
+            {{end}}
+
+            <div>
+                <input type="submit" value="Open">
+            </div>
+        {{end}}
+    </form>
+{{end}}

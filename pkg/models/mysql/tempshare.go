@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/base32"
+	"log"
 	"strconv"
 	"time"
 
@@ -54,10 +55,12 @@ func (model *TempShareModel) Insert(urlToken []byte, text string, expires string
 }
 
 func (model *TempShareModel) Get(plaintextToken string) (*models.TempShare, error) {
-	urlToken := sha256.Sum256([]byte(plaintextToken))
 
 	sqlStatement := `SELECT urltoken, text, created, expires, views, viewlimit FROM texts
 	WHERE expires > UTC_TIMESTAMP() AND views < viewlimit AND urltoken = ?`
+
+	urlTokenHash := sha256.Sum256([]byte(plaintextToken))
+	urlToken := urlTokenHash[:]
 
 	sqlRow := model.DB.QueryRow(sqlStatement, urlToken)
 
@@ -71,6 +74,26 @@ func (model *TempShareModel) Get(plaintextToken string) (*models.TempShare, erro
 	}
 
 	return tempShare, nil
+}
+
+func (model *TempShareModel) Update(plaintextToken string) error {
+
+	sqlStatement := `UPDATE texts
+	SET views = views + 1 WHERE urltoken = ?`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	urlTokenHash := sha256.Sum256([]byte(plaintextToken))
+	urlToken := urlTokenHash[:]
+
+	_, err := model.DB.ExecContext(ctx, sqlStatement, string(urlToken))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
 
 func (model *TempShareModel) Delete(tempShare *models.TempShare) error {
