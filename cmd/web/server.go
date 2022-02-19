@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -84,6 +86,32 @@ func (app *application) initializeServer() error {
 	// Since the value received from err was nil (if it was non-nil we wouldn't reach this line),
 	// print to the console that the server shutdown was successful.
 	app.infoLog.Printf("Stopped server at %s\n", srv.Addr)
+
+	return nil
+}
+
+func (app *application) initializeClient() error {
+
+	publicCert, err := ioutil.ReadFile("./tls/cert.pem")
+	if err != nil {
+		return err
+	}
+
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		return err
+	}
+	rootCAs.AppendCertsFromPEM(publicCert)
+
+	httpsClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: rootCAs,
+			},
+		},
+	}
+
+	app.httpsClient = httpsClient
 
 	return nil
 }

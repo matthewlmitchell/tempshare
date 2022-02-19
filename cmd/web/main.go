@@ -34,6 +34,7 @@ type application struct {
 	infoLog       *log.Logger
 	session       *sessions.Session
 	serverConfig  config
+	httpsClient   *http.Client
 	templateCache map[string]*template.Template
 	tempShare     interface {
 		New(string, string, string) (*models.TempShare, error)
@@ -101,6 +102,10 @@ func main() {
 		serverConfig:  servConfig,
 		templateCache: templateCache,
 		tempShare:     &mysql.TempShareModel{DB: db},
+	}
+
+	if err := app.initializeClient(); err != nil {
+		app.errorLog.Fatalln(err)
 	}
 
 	if err := app.initializeServer(); err != nil {
