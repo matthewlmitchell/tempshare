@@ -10,15 +10,15 @@ import (
 )
 
 type RecaptchaResponse struct {
-	Success     bool
+	Success     bool `json:"success"`
 	Score       float32
 	Action      string
-	ChallengeTS time.Time
-	Hostname    string
+	ChallengeTS time.Time `json:"challenge_ts"`
+	Hostname    string    `json:"hostname"`
 	ErrorCodes  []string
 }
 
-func VerifyRecaptcha(r *http.Request, gRecaptchaResponse string) (bool, error) {
+func VerifyRecaptcha(client *http.Client, r *http.Request, gRecaptchaResponse string) (bool, error) {
 	googleAPIEndpoint := "https://google.com/recaptcha/api/siteverify"
 
 	requestData := url.Values{
@@ -27,7 +27,7 @@ func VerifyRecaptcha(r *http.Request, gRecaptchaResponse string) (bool, error) {
 		"remoteip": {r.RemoteAddr},
 	}
 
-	response, err := http.PostForm(googleAPIEndpoint, requestData)
+	response, err := client.PostForm(googleAPIEndpoint, requestData)
 	if err != nil {
 		return false, err
 	}

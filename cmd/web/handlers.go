@@ -43,10 +43,9 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	success, err := recaptcha.VerifyRecaptcha(r, form.Get("g-recaptcha-response"))
+	success, err := recaptcha.VerifyRecaptcha(app.httpsClient, r, form.Get("g-recaptcha-response"))
 	if err != nil {
 		app.serverError(w, err)
-		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
 		return
 	}
 	if !success {
@@ -94,14 +93,13 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Verify reCAPTCHA completion
-	success, err := recaptcha.VerifyRecaptcha(r, form.Get("g-recaptcha-response"))
+	success, err := recaptcha.VerifyRecaptcha(app.httpsClient, r, form.Get("g-recaptcha-response"))
 	if err != nil {
 		app.serverError(w, err)
-		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
 		return
 	}
 	if !success {
-		app.session.Put(r, "flash", "An error occured.\nPlease complete the captcha again.")
+		app.session.Put(r, "flash", "An error occurred.\nPlease complete the captcha again.")
 		app.render(w, r, "view.page.tmpl", &templateData{Form: form})
 		return
 	}
