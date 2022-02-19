@@ -146,6 +146,16 @@ nav a.live:after {
     -webkit-transform: rotate(-45deg);
 }
 
+a.button, input[type="submit"]:disabled {
+    background-color: #373c3e;
+    color: #6A6C6F;
+}
+
+a.button, input[type="submit"]:disabled:hover {
+    background-color: #373c3e;
+    color: #6A6C6F;
+}
+
 a.button, input[type="submit"] {
     background-color: #62CB31;
     border-radius: 3px;
