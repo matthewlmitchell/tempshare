@@ -72,6 +72,14 @@ func (model *TempShareModel) Get(plaintextToken string) (*models.TempShare, erro
 		return nil, err
 	}
 
+	// Increment the number of views for the MySQL record
+	err = model.Update(plaintextToken)
+	if err == models.ErrNoRecord {
+		return nil, models.ErrNoRecord
+	} else if err != nil {
+		return nil, err
+	}
+
 	return tempShare, nil
 }
 
@@ -95,7 +103,6 @@ func (model *TempShareModel) Update(plaintextToken string) error {
 	if err != nil {
 		return err
 	}
-
 	if numRowsAffected == 0 {
 		return models.ErrNoRecord
 	}
