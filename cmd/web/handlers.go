@@ -92,7 +92,6 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Verify reCAPTCHA completion
 	success, err := recaptcha.VerifyRecaptcha(app.httpsClient, r, form.Get("g-recaptcha-response"))
 	if err != nil {
 		app.serverError(w, err)
