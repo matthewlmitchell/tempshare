@@ -90,6 +90,10 @@ func (app *application) initializeServer() error {
 	return nil
 }
 
+// initializeClient creates a new HTTPS client using our public cert, and appends
+// it to our main application struct.
+// This client is only used for sending backend requests to APIs,
+// e.g.: sending a POST request to the reCAPTCHA API for verifying recaptcha responses
 func (app *application) initializeClient() error {
 
 	publicCert, err := ioutil.ReadFile("./tls/cert.pem")
@@ -97,20 +101,27 @@ func (app *application) initializeClient() error {
 		return err
 	}
 
+	// Append our public cert to our pre-existing system certificate pool
 	rootCAs, err := x509.SystemCertPool()
 	if err != nil {
 		return err
 	}
 	rootCAs.AppendCertsFromPEM(publicCert)
 
+	// InsecureSkipVerify set to false ensures that we must verify
+	// that our request's response actually came from the server we requested it from.
+	// If this is set to true, we do not verify the request came from who we think it did,
+	// which allows for man-in-the-middle attacks.
 	httpsClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				RootCAs: rootCAs,
+				RootCAs:            rootCAs,
+				InsecureSkipVerify: false,
 			},
 		},
 	}
 
+	// Append the http.Client to our application struct.
 	app.httpsClient = httpsClient
 
 	return nil
