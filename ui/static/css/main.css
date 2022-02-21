@@ -5,6 +5,8 @@
     --box-text-color: #FFFFFF;
     --border-color: #E4E5E7;
     --label-color: #222;
+    --href-color: #34495E;
+    --href-color-live: #26190a;
 }
 
 * {
@@ -24,6 +26,7 @@ body {
     background-color: var(--body-bg-color);
     color: var(--primary-text-color);
     overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 header, nav, section, footer {
@@ -61,12 +64,12 @@ h2 {
 }
 
 a {
-    color: #62CB31;
+    color: var(--href-color);
     text-decoration: none;
 }
 
 a:hover {
-    color: #4EB722;
+    color: var(--href-color-live);
     text-decoration: underline;
 }
 
@@ -123,7 +126,7 @@ nav div:last-child a {
 }
 
 nav a.live {
-    color: var(--primary-text-color);
+    color: var(--href-color-live);
     cursor: default;
 }
 
@@ -216,7 +219,7 @@ button {
     background: none;
     padding: 0;
     border: none;
-    color: #62CB31;
+    color: var(--href-color);
     text-decoration: none;
 }
 
@@ -224,6 +227,36 @@ button:hover {
     color: #4EB722;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.tempshare {
+    border: 1px solid var(--primary-text-color);
+    border-radius: 3px;
+}
+
+.tempshare .metadata {
+    background-color: var(--body-bg-color);
+    color: var(--primary-text-color);
+    padding: 0.75em 18px;
+    overflow: auto;
+}
+
+.tempshare pre {
+    padding: 18px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tempshare .metadata time {
+    display: inline-block;
+}
+
+.tempshare .metadata time:first-child {
+    float: left;
+}
+
+.tempshare .metadata time:last-child {
+    float: right;
 }
 
 div.flash {
@@ -352,4 +385,6 @@ input.dark-mode-switch {
     --box-text-color: #000000;
     --border-color: #373c3e;
     --label-color: #030303;
+    --href-color: #e6c9a6;
+    --href-color-live: #c8893c;
 }
