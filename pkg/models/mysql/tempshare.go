@@ -16,6 +16,9 @@ type TempShareModel struct {
 	DB *sql.DB
 }
 
+// New generates a sha256 hash of a supplied text string, then calls Insert to create a
+// new entry in our SQL database. After insertion, a *models.TempShare struct is returned
+// containing the necessary info for retrieving the data from the SQL db.
 func (model *TempShareModel) New(text string, expires string, viewlimit string) (*models.TempShare, error) {
 	maxViews, err := strconv.Atoi(viewlimit)
 	if err != nil {
@@ -38,6 +41,8 @@ func (model *TempShareModel) New(text string, expires string, viewlimit string) 
 
 // Insert a string of text into the database with a given expiry
 // and return a token string for formatting into a shareable URL
+// The primary key is a sha256 hash used as a token in the URL
+// e.g. /view?token=XXXXXX
 func (model *TempShareModel) Insert(urlToken []byte, text string, expires string, viewlimit int) error {
 
 	sqlStatement := `INSERT INTO texts (urltoken, text, created, expires, views, viewlimit) 
@@ -53,6 +58,10 @@ func (model *TempShareModel) Insert(urlToken []byte, text string, expires string
 	return err
 }
 
+// Get accepts a base32 encoded string as a primary key and retrieves the corresponding
+// entry from our SQL database if it exists (and if it is not expired/exceeding view limits).
+// The data is scanned into a models.TempShare{} struct and returned,
+// the view count of the DB entry is then incremented to reflect that the data has been accessed
 func (model *TempShareModel) Get(plaintextToken string) (*models.TempShare, error) {
 
 	sqlStatement := `SELECT urltoken, text, created, expires, views, viewlimit FROM texts
@@ -83,6 +92,9 @@ func (model *TempShareModel) Get(plaintextToken string) (*models.TempShare, erro
 	return tempShare, nil
 }
 
+// Update accepts a string (which should be base32 encoded), which is our primary key
+// after taking a sha256 hash, and attempts to increment the view count of the
+// corresponding row in our SQL database.
 func (model *TempShareModel) Update(plaintextToken string) error {
 
 	sqlStatement := `UPDATE texts
@@ -99,6 +111,9 @@ func (model *TempShareModel) Update(plaintextToken string) error {
 		return err
 	}
 
+	// If no rows were affected/updated by the sql statement, then the plaintextToken
+	// did not correspond to a valid row in our sql database. Return that
+	// there was no record matching the request.
 	numRowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -110,6 +125,8 @@ func (model *TempShareModel) Update(plaintextToken string) error {
 	return nil
 }
 
+// Delete removes the row from our SQL database which corresponds
+// to the provided models.TempShare{} struct.
 func (model *TempShareModel) Delete(tempShare *models.TempShare) error {
 
 	sqlStatement := `DELETE from texts WHERE urltoken = ?`
@@ -117,11 +134,28 @@ func (model *TempShareModel) Delete(tempShare *models.TempShare) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	_, err := model.DB.ExecContext(ctx, sqlStatement, tempShare.URLToken)
+	result, err := model.DB.ExecContext(ctx, sqlStatement, tempShare.URLToken)
+	if err != nil {
+		return err
+	}
 
-	return err
+	// If no rows were affected in our table, then there was no record
+	// in our SQL database that matches the provided models.TempShare struct.
+	numRowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if numRowsAffected == 0 {
+		return models.ErrNoRecord
+	}
+
+	return nil
 }
 
+// generateTempShare accepts a string of text, the number of days before expiry,
+// and a maximum view count. These values are parsed into a models.TempShare{}
+// struct, a base32 encoded string is randomly generated to be used as a shareable URL,
+// and a sha256 hash of the URL token is generated.
 func generateTempShare(text string, expires int, viewlimit int) (*models.TempShare, error) {
 	tempShare := &models.TempShare{
 		Text:      text,
