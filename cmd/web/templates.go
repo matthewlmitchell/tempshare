@@ -17,6 +17,8 @@ type templateData struct {
 	Form        *forms.Form
 }
 
+// FormattedDate accepts a time.Time and returns the time adjusted to UTC.
+// If the time given is zero, an empty string is returned
 func FormattedDate(t time.Time) string {
 	if t.IsZero() {
 		return ""
@@ -25,10 +27,14 @@ func FormattedDate(t time.Time) string {
 	return t.UTC().Format("Jan 02 2006 at 15:04")
 }
 
+// This template.FuncMap{} allows us to call Golang functions
+// inside our template files, e.g.: {{formattedDate .VariableName}}
 var functions = template.FuncMap{
 	"formattedDate": FormattedDate,
 }
 
+// initTemplateCache accepts a directory and returns a map that points
+// file names to parsed template.Template objects.
 func initTemplateCache(dir string) (map[string]*template.Template, error) {
 
 	// Create a new map to hold templates as a cache

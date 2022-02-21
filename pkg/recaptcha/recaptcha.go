@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+// RecaptchaResponse is a custom struct used for unmarshalling the json response
+// from a POST request to the reCAPTCHA API endpoint.
+// Note: Score and Action are values used in reCAPTCHA v3 and are not used here at the moment.
 type RecaptchaResponse struct {
 	Success     bool `json:"success"`
 	Score       float32
@@ -18,6 +21,10 @@ type RecaptchaResponse struct {
 	ErrorCodes  []string
 }
 
+// VerifyRecaptcha submits a POST request to the google reCAPTCHA API endpoint containing
+// the server-side reCAPTCHA secret key along with the client's "g-recaptcha-response" and
+// the client's IP address. The json response is then unmarshalled into our RecaptchaResponse
+// struct and we return whether true if the recaptcha challenge was successful, false otherwise.
 func VerifyRecaptcha(client *http.Client, r *http.Request, gRecaptchaResponse string) (bool, error) {
 	googleAPIEndpoint := "https://google.com/recaptcha/api/siteverify"
 

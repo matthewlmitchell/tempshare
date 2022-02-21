@@ -10,6 +10,7 @@ import (
 
 func (app *application) routes() http.Handler {
 
+	// TODO: Add rate limiting to our dynamicMiddlware, before enabling http session management
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	dynamicMiddleware := alice.New(app.session.Enable, noCSRF)
 
@@ -23,6 +24,7 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/about", dynamicMiddleware.ThenFunc(app.about).(http.HandlerFunc))
 
+	// TODO: Add rate limiting to the http file server
 	fileServer := httpfileserver.New("/static/", "./ui/static/")
 	mux.Get("/static/*", http.StripPrefix("/static", fileServer).(http.HandlerFunc))
 
