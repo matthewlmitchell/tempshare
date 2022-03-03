@@ -125,6 +125,9 @@ func (model *TempShareModel) Update(plaintextToken string) error {
 	return nil
 }
 
+/* TODO: Remove delete functionality from the webserver's sql privileges and
+   move it to a separate program running on a cron.
+
 // Delete removes the row from our SQL database which corresponds
 // to the provided models.TempShare{} struct.
 func (model *TempShareModel) Delete(tempShare *models.TempShare) error {
@@ -151,6 +154,7 @@ func (model *TempShareModel) Delete(tempShare *models.TempShare) error {
 
 	return nil
 }
+*/
 
 // generateTempShare accepts a string of text, the number of days before expiry,
 // and a maximum view count. These values are parsed into a models.TempShare{}

@@ -41,7 +41,6 @@ type application struct {
 		Insert([]byte, string, string, int) error
 		Get(string) (*models.TempShare, error)
 		Update(string) error
-		Delete(*models.TempShare) error
 	}
 }
 
