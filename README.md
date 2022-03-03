@@ -15,3 +15,6 @@ Or compiled into an executable
 > go build -o server cmd/web/!(*_test.go)
 
 > ./server
+
+Tests can be run from the project root folder via:
+> go test -v ./...
