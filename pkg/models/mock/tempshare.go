@@ -16,7 +16,7 @@ var mockTempShare = &models.TempShare{
 	Created:   time.Now(),
 	Expires:   time.Now().Add(24 * time.Hour),
 	Views:     0,
-	ViewLimit: 10,
+	ViewLimit: 1,
 }
 
 func (model *TempShareModel) New(text string, expires string, viewlimit string) (*models.TempShare, error) {
