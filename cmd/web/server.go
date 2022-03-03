@@ -94,9 +94,9 @@ func (app *application) initializeServer() error {
 // it to our main application struct.
 // This client is only used for sending backend requests to APIs,
 // e.g.: sending a POST request to the reCAPTCHA API for verifying recaptcha responses
-func (app *application) initializeClient() error {
+func (app *application) initializeClient(certDir string) error {
 
-	publicCert, err := ioutil.ReadFile("./tls/cert.pem")
+	publicCert, err := ioutil.ReadFile(certDir)
 	if err != nil {
 		return err
 	}

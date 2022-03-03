@@ -103,7 +103,7 @@ func main() {
 		tempShare:     &mysql.TempShareModel{DB: db},
 	}
 
-	if err := app.initializeClient(); err != nil {
+	if err := app.initializeClient("./tls/cert.pem"); err != nil {
 		app.errorLog.Fatalln(err)
 	}
 
