@@ -14,6 +14,7 @@ import (
 
 	"github.com/golangcollege/sessions"
 	"github.com/gorilla/securecookie"
+	"github.com/matthewlmitchell/tempshare/pkg/models/mock"
 )
 
 type testServer struct {
@@ -38,6 +39,7 @@ func newTestApplication(t *testing.T) *application {
 		infoLog:       log.New(ioutil.Discard, "", 0),
 		session:       session,
 		templateCache: templateCache,
+		tempShare:     &mock.TempShareModel{},
 	}
 }
 
@@ -93,7 +95,7 @@ func (ts *testServer) post(t *testing.T, urlPath string, contentType string) (in
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	request, err := http.NewRequestWithContext(ctx, "POST", urlPath, nil)
+	request, err := http.NewRequestWithContext(ctx, "POST", ts.URL+urlPath, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +121,7 @@ func (ts *testServer) postForm(t *testing.T, urlPath string, data url.Values) (i
 	defer cancel()
 
 	postData := strings.NewReader(data.Encode())
-	request, err := http.NewRequestWithContext(ctx, "POST", urlPath, postData)
+	request, err := http.NewRequestWithContext(ctx, "POST", ts.URL+urlPath, postData)
 	if err != nil {
 		t.Fatal(err)
 	}
