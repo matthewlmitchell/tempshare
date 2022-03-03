@@ -43,7 +43,7 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	success, err := recaptcha.VerifyRecaptcha(app.httpsClient, r, form.Get("g-recaptcha-response"))
+	success, err := recaptcha.VerifyRecaptcha(app.serverConfig.env, app.httpsClient, r, form.Get("g-recaptcha-response"))
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -92,7 +92,7 @@ func (app *application) viewTempShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	success, err := recaptcha.VerifyRecaptcha(app.httpsClient, r, form.Get("g-recaptcha-response"))
+	success, err := recaptcha.VerifyRecaptcha(app.serverConfig.env, app.httpsClient, r, form.Get("g-recaptcha-response"))
 	if err != nil {
 		app.serverError(w, err)
 		return

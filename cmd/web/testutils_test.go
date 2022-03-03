@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
-	"strings"
+	"regexp"
 	"testing"
 	"time"
 
@@ -20,6 +21,8 @@ import (
 type testServer struct {
 	*httptest.Server
 }
+
+var regexCSRFToken = regexp.MustCompile(`<input type="hidden" name="gorilla.csrf.Token" value="(.+)">`)
 
 func newTestApplication(t *testing.T) *application {
 
@@ -38,6 +41,7 @@ func newTestApplication(t *testing.T) *application {
 		errorLog:      log.New(ioutil.Discard, "", 0),
 		infoLog:       log.New(ioutil.Discard, "", 0),
 		session:       session,
+		serverConfig:  config{env: "testing"},
 		templateCache: templateCache,
 		tempShare:     &mock.TempShareModel{},
 	}
@@ -117,27 +121,29 @@ func (ts *testServer) post(t *testing.T, urlPath string, contentType string) (in
 
 func (ts *testServer) postForm(t *testing.T, urlPath string, data url.Values) (int, http.Header, []byte) {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	postData := strings.NewReader(data.Encode())
-	request, err := http.NewRequestWithContext(ctx, "POST", ts.URL+urlPath, postData)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	response, err := ts.Client().Do(request)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	responseBody, err := ioutil.ReadAll(response.Body)
+	response, err := ts.Client().PostForm(ts.URL+urlPath, data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	defer response.Body.Close()
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	return response.StatusCode, response.Header, responseBody
+}
 
+func extractCSRFToken(t *testing.T, response []byte) string {
+
+	// FindSubmatch returns [][]byte with index being the entire
+	// pattern matched to the regexp and values being any extra
+	// data found in the pattern.
+	regexMatches := regexCSRFToken.FindSubmatch(response)
+	if len(regexMatches) < 2 {
+		t.Fatal("Failed to find CSRF Token in response body")
+	}
+
+	return html.UnescapeString(string(regexMatches[1]))
 }

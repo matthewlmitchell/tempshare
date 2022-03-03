@@ -15,9 +15,8 @@
         {{with .Errors.Get "generic"}}
             <div class="error">{{.}}</div>
         {{end}}
-
-        <div class="g-recaptcha" data-sitekey="6Lf6y4keAAAAAAJ60lesX2__4gk3UoPVS8zbovpG" data-callback="enableSubmit"></div>
-        <input type="submit" id="submit" value="Open" disabled="disabled">
     {{end}}
+    <div class="g-recaptcha" data-sitekey="{{.SiteKey}}" data-callback="enableSubmit"></div>
+    <input type="submit" id="submit" value="Open" disabled="disabled">
 </form>
 {{end}}

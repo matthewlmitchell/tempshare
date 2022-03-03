@@ -11,6 +11,7 @@ import (
 
 type templateData struct {
 	CurrentYear int
+	SiteKey     string
 	CSRFToken   string
 	Flash       string
 	TempShare   *models.TempShare

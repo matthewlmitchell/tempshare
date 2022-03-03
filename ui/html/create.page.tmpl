@@ -39,8 +39,8 @@
 			<input type="radio" name="viewlimit" value="3" {{if (eq $view "3")}}checked{{end}}> Three Views
 			<input type="radio" name="viewlimit" value="10" {{if (eq $view "10")}}checked{{end}}> Ten Views
 		</div>
-		<div class="g-recaptcha" data-sitekey="6Lf6y4keAAAAAAJ60lesX2__4gk3UoPVS8zbovpG" data-callback="enableSubmit"></div>
-		<input type="submit" id="submit" value="Generate link" disabled="disabled">
 	{{end}}
+	<div class="g-recaptcha" data-sitekey="{{.SiteKey}}" data-callback="enableSubmit"></div>
+	<input type="submit" id="submit" value="Generate link" disabled="disabled">
 </form>
 {{end}}

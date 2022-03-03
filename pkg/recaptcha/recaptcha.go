@@ -25,13 +25,19 @@ type RecaptchaResponse struct {
 // the server-side reCAPTCHA secret key along with the client's "g-recaptcha-response" and
 // the client's IP address. The json response is then unmarshalled into our RecaptchaResponse
 // struct and we return whether true if the recaptcha challenge was successful, false otherwise.
-func VerifyRecaptcha(client *http.Client, r *http.Request, gRecaptchaResponse string) (bool, error) {
+func VerifyRecaptcha(env string, client *http.Client, r *http.Request, gRecaptchaResponse string) (bool, error) {
 	googleAPIEndpoint := "https://google.com/recaptcha/api/siteverify"
 
+	// When launched in a test environment, use the following test key
+	// c.f. https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
 	requestData := url.Values{
-		"secret":   {os.Getenv("TEMPSHARE_reCAPTCHA_SECRET")},
 		"response": {gRecaptchaResponse},
 		"remoteip": {r.RemoteAddr},
+	}
+	if env == "testing" {
+		requestData.Add("secret", "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe")
+	} else {
+		requestData.Add("secret", os.Getenv("TEMPSHARE_reCAPTCHA_SECRET"))
 	}
 
 	response, err := client.PostForm(googleAPIEndpoint, requestData)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"os"
 	"runtime/debug"
 	"time"
 
@@ -16,7 +17,14 @@ func (app *application) addDefaultData(tmplData *templateData, r *http.Request) 
 		tmplData = &templateData{}
 	}
 
-	// TODO: Add CSRF token, flash msg (after adding session handling)
+	// "testing" sets the sitekey to a key made for testing (always no CAPTCHA and all requests pass verification)
+	// https://developers.google.com/recaptcha/docs/faq
+	if app.serverConfig.env == "testing" {
+		tmplData.SiteKey = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+	} else {
+		tmplData.SiteKey = os.Getenv("TEMPSHARE_reCAPTCHA_PUBLIC")
+	}
+
 	tmplData.CSRFToken = csrf.Token(r)
 	tmplData.CurrentYear = time.Now().Year()
 	tmplData.Flash = app.session.PopString(r, "flash")
