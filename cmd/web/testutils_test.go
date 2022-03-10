@@ -96,15 +96,7 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, []byt
 
 func (ts *testServer) post(t *testing.T, urlPath string, contentType string) (int, http.Header, []byte) {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	request, err := http.NewRequestWithContext(ctx, "POST", ts.URL+urlPath, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	response, err := ts.Client().Do(request)
+	response, err := ts.Client().Post(ts.URL+urlPath, contentType, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,11 +118,12 @@ func (ts *testServer) postForm(t *testing.T, urlPath string, data url.Values) (i
 		t.Fatal(err)
 	}
 
-	defer response.Body.Close()
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	defer response.Body.Close()
 
 	return response.StatusCode, response.Header, responseBody
 }
