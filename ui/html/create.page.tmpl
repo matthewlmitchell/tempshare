@@ -13,27 +13,27 @@
 	<input type="hidden" name="gorilla.csrf.Token" value="{{.CSRFToken}}">
 	{{with .Form}}
 		<div>
-			<label>Text:</label>
-			{{with .Errors.Get "text"}}
+        	{{with .Errors.Get "text"}}
 				<label class="error">{{.}}</label>
 			{{end}}
+			<label>Text:</label>
 			<textarea name="text">{{.Get "text"}}</textarea>
 		</div>
 		<div>
-			<label>Expire after:</label>
-			{{with .Errors.Get "expires"}}
+        	{{with .Errors.Get "expires"}}
 				<label class="error">{{.}}</label>
 			{{end}}
+			<label>Expire after:</label>
 			{{$exp := or (.Get "expires") "1"}}
 			<input type="radio" name="expires" value="1" {{if (eq $exp "1")}}checked{{end}}> One Day
 			<input type="radio" name="expires" value="3" {{if (eq $exp "3")}}checked{{end}}> Three Days
 			<input type="radio" name="expires" value="7" {{if (eq $exp "7")}}checked{{end}}> One Week
 		</div>
 		<div>
-			<label>Delete after:</label>
-			{{with .Errors.Get "views"}}
+        	{{with .Errors.Get "viewlimit"}}
 				<label class="error">{{.}}</label>
 			{{end}}
+			<label>Delete after:</label>
 			{{$view := or (.Get "viewlimit") "1"}}
 			<input type="radio" name="viewlimit" value="1" {{if (eq $view "1")}}checked{{end}}> One View
 			<input type="radio" name="viewlimit" value="3" {{if (eq $view "3")}}checked{{end}}> Three Views
