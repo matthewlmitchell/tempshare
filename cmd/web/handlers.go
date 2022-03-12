@@ -62,7 +62,9 @@ func (app *application) createTempShare(w http.ResponseWriter, r *http.Request) 
 	app.session.Put(r, "flash", fmt.Sprintf("Your TempShare link: %s", fmt.Sprintf("https://placeholder.com/view?token=%s", tempShare.PlainText)))
 
 	// Refresh the page so the message flash will become visible
-	http.Redirect(w, r, "/create", http.StatusSeeOther)
+	//http.Redirect(w, r, "/create", http.StatusSeeOther)
+
+	app.render(w, r, "create.page.tmpl", &templateData{Form: form})
 
 }
 

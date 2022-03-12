@@ -57,7 +57,7 @@ func TestCreateTempShare(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testServ := newTestServer(t, app.routes(), true)
+	testServ := newTestServer(t, app.routes(), false)
 	defer testServ.Close()
 
 	_, _, responseBody := testServ.get(t, "/create")
@@ -109,11 +109,38 @@ func TestCreateTempShare(t *testing.T) {
 			expectedResponse:        []byte("This field must contain more than 2 characters"),
 		},
 		{
+			name:                    "Text too long",
+			tokenCSRF:               csrfToken,
+			inputTempShareText:      strings.Repeat("A", 1025),
+			inputTempShareExpires:   "1",
+			inputTempShareViewLimit: "1",
+			expectedStatusCode:      http.StatusOK,
+			expectedResponse:        []byte("This field must contain less than 1024 characters"),
+		},
+		{
 			name:                    "No input",
 			tokenCSRF:               csrfToken,
 			inputTempShareText:      "",
 			inputTempShareExpires:   "1",
 			inputTempShareViewLimit: "1",
+			expectedStatusCode:      http.StatusOK,
+			expectedResponse:        []byte("This field must not be blank"),
+		},
+		{
+			name:                    "No expiry",
+			tokenCSRF:               csrfToken,
+			inputTempShareText:      "Hello World",
+			inputTempShareExpires:   "",
+			inputTempShareViewLimit: "1",
+			expectedStatusCode:      http.StatusOK,
+			expectedResponse:        []byte("This field must not be blank"),
+		},
+		{
+			name:                    "No view limit",
+			tokenCSRF:               csrfToken,
+			inputTempShareText:      "Hello World",
+			inputTempShareExpires:   "1",
+			inputTempShareViewLimit: "",
 			expectedStatusCode:      http.StatusOK,
 			expectedResponse:        []byte("This field must not be blank"),
 		},
@@ -228,9 +255,23 @@ func TestViewTempShare(t *testing.T) {
 			expectedResponse:   []byte("Forbidden - CSRF token invalid"),
 		},
 		{
-			name:               "Invalid TempShare token",
+			name:               "TempShare token too short",
 			tokenCSRF:          csrfToken,
 			tokenTempShare:     "INVALID",
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   []byte("Invalid token"),
+		},
+		{
+			name:               "TempShare token too long",
+			tokenCSRF:          csrfToken,
+			tokenTempShare:     strings.Repeat("A", 53),
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   []byte("Invalid token"),
+		},
+		{
+			name:               "TempShare token is empty",
+			tokenCSRF:          csrfToken,
+			tokenTempShare:     "",
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   []byte("Invalid token"),
 		},
